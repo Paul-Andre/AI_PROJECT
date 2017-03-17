@@ -169,7 +169,7 @@ def getAndCache(inp_):
 #print(len(list(partition(6,12))))
 bigarray = []
 if True:
-    for i in range(0,10):
+    for i in range(0,11):
         start = i%2
         for j in range(start,(i)+1,2):
             for part in partition(i,12):
