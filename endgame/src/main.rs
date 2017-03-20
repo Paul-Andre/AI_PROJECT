@@ -5,6 +5,7 @@ use std::cmp::max;
 
 use std::fs::File;
 use std::io::prelude::*;
+use std::io::BufWriter;
 
 /// CONFIGURATION_COUNT[n][m] represents the numbers of ways to put m beans into n pits.
 /// It is used when converting a configuration into its index.
@@ -144,7 +145,32 @@ enum ConfigurationScore {
     Postponed,
 }
 
+impl ConfigurationScore {
+    fn pack(self) -> PackedConfigurationScore {
+        use ConfigurationScore::*;
+        PackedConfigurationScore(
+            match self {
+                Score(s) => s,
+                NotVisited => 127,
+                Postponed => 126,
+            })
+    }
+}
+            
 
+#[derive(Copy,Clone,Eq,PartialEq)]
+struct PackedConfigurationScore(i8);
+
+impl PackedConfigurationScore {
+    fn unpack(self) -> ConfigurationScore {
+        use ConfigurationScore::*;
+        match self {
+            PackedConfigurationScore(127) => NotVisited,
+            PackedConfigurationScore(126) => Postponed,
+            PackedConfigurationScore(s) => Score(s),
+        }
+    }
+}
 
 fn assert_index_matches(c: &[u8; 12], ii: u64) {
     let (a,i) = partition_to_index(c);
@@ -177,12 +203,12 @@ fn next_partition(array: &mut [u8]) -> bool {
     }
 }
 
-fn get_simple_scores(scores: &mut Vec<Vec<ConfigurationScore>>, config: &Configuration) -> ConfigurationScore {
+fn get_simple_scores(scores: &mut Vec<Vec<PackedConfigurationScore>>, config: &Configuration) -> PackedConfigurationScore {
     use ConfigurationScore::*;
     let (sum, index) = config.to_index();
-    if scores[sum as usize][index as usize] == NotVisited {
+    if scores[sum as usize][index as usize] == NotVisited.pack() {
         if config.pits[6..12].iter().sum::<u8>() == 0 {
-            scores[sum as usize][index as usize] = Score(sum as i8);
+            scores[sum as usize][index as usize] = Score(sum as i8).pack();
         }
     }
     scores[sum as usize] [index as usize]
@@ -190,16 +216,16 @@ fn get_simple_scores(scores: &mut Vec<Vec<ConfigurationScore>>, config: &Configu
 
 
 
-fn compute_score(scores: &mut Vec<Vec<ConfigurationScore>>, config_: &Configuration) -> ConfigurationScore {
+fn compute_score(scores: &mut Vec<Vec<PackedConfigurationScore>>, config_: &Configuration) {
     use ConfigurationScore::*;
-    if get_simple_scores(scores, config_) == NotVisited {
+    if get_simple_scores(scores, config_) == NotVisited.pack() {
         let mut stack = Vec::new();
         stack.push(config_.clone());
         while let Some(config) = stack.pop() {
             //println!("{:?}", config);
             let (sum, index) = config.to_index();
             let previously_got_score = scores[sum as usize][index as usize];
-            match previously_got_score {
+            match previously_got_score.unpack() {
                 NotVisited | Postponed => {
                     let switched = config.switched();
                     let mut moves = Vec::with_capacity(7);
@@ -216,62 +242,64 @@ fn compute_score(scores: &mut Vec<Vec<ConfigurationScore>>, config_: &Configurat
                     }
                     let possible_scores = moves.iter().map(|&(new_config, beans_seized)| {
                         let score = get_simple_scores(scores, &new_config);
-                        (new_config, match score {
-                            Score(s) => Score(s+(beans_seized as i8)),
-                            something_else => something_else,
+                        (new_config, match score.unpack() {
+                            Score(s) => Score(s+(beans_seized as i8)).pack(),
+                            something_else => something_else.pack(),
                         })
                     }).collect::<Vec<_>>();
 
-                            //println!("Next moves are: ");
+                    /*
+                            println!("Next moves are: ");
                             for a in &possible_scores {
-                                //println!(" {:?} ", a);
+                                println!(" {:?} ", a);
                             }
-                            //println!("");
+                            println!("");
+                            */
 
 
                     let all_postponed = possible_scores.iter().all(|&(new_config, score)| {
-                        score == Postponed
+                        score == Postponed.pack()
                     });
                     if all_postponed {
-                        if previously_got_score == Postponed {
+                        if previously_got_score == Postponed.pack() {
                             panic!("At least some of the postponed values must have been found");
                         }
                         continue;
                     }
 
                     let total_score = possible_scores.iter().fold(None, |acc, &(new_config, score)| {
-                        match (score,acc) {
+                        match (score.unpack(),acc) {
                             (Score(a), Some(b)) => Some(max(a,b)),
                             (Score(a), None) => Some(a),
                             _ => acc
                         }
                     });
 
-                    if (previously_got_score == Postponed) {
+                    if (previously_got_score == Postponed.pack()) {
                         if let Some(the_score) = total_score {
-                            scores[sum as usize][index as usize] = Score(-the_score);
+                            scores[sum as usize][index as usize] = Score(-the_score).pack();
                         }
                         else {
-                            scores[sum as usize][index as usize] = NotVisited;
+                            scores[sum as usize][index as usize] = NotVisited.pack();
                         }
                     }
                     else {
 
                         let exist_not_visited = possible_scores.iter().any(|&(new_config, score)| {
-                            score == NotVisited
+                            score == NotVisited.pack()
                         });
 
                         if (exist_not_visited) {
-                            scores[sum as usize][index as usize] = Postponed;
+                            scores[sum as usize][index as usize] = Postponed.pack();
                             stack.push(config);
                             for (new_config,score) in possible_scores {
-                                if score == NotVisited {
+                                if score == NotVisited.pack() {
                                     stack.push(new_config);
                                 }
                             }
                         }
                         else {
-                            scores[sum as usize][index as usize] = Score(-total_score.unwrap());
+                            scores[sum as usize][index as usize] = Score(-total_score.unwrap()).pack();
                         }
                     }
 
@@ -280,14 +308,12 @@ fn compute_score(scores: &mut Vec<Vec<ConfigurationScore>>, config_: &Configurat
             }
         }
     }
-
-    get_simple_scores(scores, config_)
 }
 
 fn main() {
 
-    let mut scores: Vec<Vec<ConfigurationScore>> = Vec::new();
-    scores.push(vec![ConfigurationScore::Score(0); 16]);
+    let mut scores: Vec<Vec<PackedConfigurationScore>> = Vec::new();
+    scores.push(vec![ConfigurationScore::Score(0).pack(); 16]);
 
     /*
 compute_score(&mut scores, &Configuration {
@@ -300,25 +326,13 @@ compute_score(&mut scores, &Configuration {
     */
 
 
-    for i in 1..15 {
+    for i in 1..14 {
+        println!("{}", i);
 
-        scores.push(vec![ConfigurationScore::NotVisited; (CONFIGURATION_COUNT[12][i as usize]*16) as usize]);
+        scores.push(vec![ConfigurationScore::NotVisited.pack(); (CONFIGURATION_COUNT[12][i as usize]*16) as usize]);
         let mut pits = [0,0,0,0,0,0,0,0,0,0,0,i];
 
-        for currentRemainingSkips in 0..4 {
-            for otherRemainingSkips in 0..4 {
-                let config = Configuration{
-                    pits: pits,
-                    currentRemainingSkips: currentRemainingSkips,
-                    otherRemainingSkips: otherRemainingSkips
-                };
-                let s = compute_score(&mut scores, &config);
-                //println!("{:?}",s);
-                //println!("The config {:?} has score {:?}", config, s);
-            }
-        }
-
-        while !next_partition(&mut pits) {
+        loop {
             for currentRemainingSkips in 0..4 {
                 for otherRemainingSkips in 0..4 {
                     let config = Configuration{
@@ -331,15 +345,22 @@ compute_score(&mut scores, &Configuration {
                     //println!("The config {:?} has score {:?}", config, s);
                 }
             }
+            if next_partition(&mut pits) {
+                break;
+            }
         }
     }
 
-    let mut file = File::create("rawoutput").unwrap();
+    println!("Will start writing to file.");
 
-    for a in scores {
-        for score in a{
+    let mut file = File::create("rawoutput10pack").unwrap();
+    let mut file = BufWriter::new(file);
+
+    for (i,a) in scores.iter().enumerate() {
+        println!("{}", i);
+        for &score in a{
             
-            if let ConfigurationScore::Score(the_score) = score {
+            if let ConfigurationScore::Score(the_score) = score.unpack() {
                 let buffer: [u8; 1] = [the_score as u8];
                 file.write_all(&buffer).unwrap();
             }
