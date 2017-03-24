@@ -18,17 +18,14 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
      * This is important, because this is what the code that runs the
      * competition uses to associate you with your agent.
      * The constructor should do nothing else. */
-    public StudentPlayerMinimax() { super("Top Memer"); }
-
-
+    public StudentPlayerMinimax() { super("H4RDC0R3"); }
     
     private int evaluationFunction(BohnenspielBoardState board_state) {
     	return board_state.getScore(player_id) - board_state.getScore(opponent_id);
     }
     
-    /** Returns a heuristic value of how different two states are. Used as an heuristic to determine what state should be expanded by alph-beta **/ 
     private int distance(BohnenspielBoardState a, BohnenspielBoardState b) {
-    	return Math.abs( (a.getScore(0) - a.getScore(1)) - (b.getScore(0) - b.getScore(1)));
+    	return Math.abs( (a.getScore(0) - a.getScore(1)) - (b.getScore(0) - b.getScore(1)) );
     }
     
     /** Evaluates a game state using minimax and returns a score based on the evaluation function **/
@@ -116,31 +113,33 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
 
     public BohnenspielMove chooseMove(BohnenspielBoardState board_state)
     {
-        // Get the contents of the pits so we can use it to make decisions.
-        //int[][] pits = board_state.getPits();
-
-        // Use ``player_id`` and ``opponent_id`` to get my pits and opponent pits.
-        //int[] my_pits = pits[player_id];
-        //int[] op_pits = pits[opponent_id];
-
+    	long startTime = System.nanoTime();
         // Get the legal moves for the current board state.
         ArrayList<BohnenspielMove> moves = board_state.getLegalMoves();
         Collections.shuffle(moves);
      
-        BohnenspielMove best_move = null;
-        int best_score = -10000;
-        for (BohnenspielMove move: moves) {
-    		BohnenspielBoardState cloned_board_state = (BohnenspielBoardState) board_state.clone();
-    		cloned_board_state.move(move);
-            int score = minimax(cloned_board_state, 11, -100000,  100000);
-            if (score > best_score) {
-            	best_score = score;
-            	best_move = move;
-            }
-            //System.out.println("Considering move "+move.toPrettyString()+" with score "+score);
-
-    	}
-
-        return best_move;
+        
+        
+        for (int i=11; ;i++) {
+	        BohnenspielMove best_move = null;
+	        int best_score = -10000;
+	        for (BohnenspielMove move: moves) {
+	    		BohnenspielBoardState cloned_board_state = (BohnenspielBoardState) board_state.clone();
+	    		cloned_board_state.move(move);
+	            int score = minimax(cloned_board_state, i, -100000,  100000);
+	            if (score > best_score) {
+	            	best_score = score;
+	            	best_move = move;
+	            }
+	            //System.out.println("Considering move "+move.toPrettyString()+" with score "+score);
+	
+	    	}
+	        long endTime = System.nanoTime();
+	        long duration = endTime - startTime;
+	        if (duration > 100 * 1000000) {
+	        	System.out.println("Went "+(i+1)+" levels deep.");
+	        	return best_move;
+	        }
+        }
     }
 }
