@@ -109,7 +109,7 @@ impl Configuration {
     fn to_index(&self) -> (u8, u64) {
         let (sum, index) = partition_to_index(&self.pits);
         let mult = (self.currentRemainingSkips as u64*4 + self.otherRemainingSkips as u64);
-        (sum, CONFIGURATION_COUNT[12][sum as usize]*mult + index)
+        (sum, CONFIGURATION_COUNT[12][(sum as usize)*2]*mult + index)
     }
 }
 
@@ -117,10 +117,10 @@ impl Configuration {
 /// represents this configuration.
 fn partition_to_index(pits: &[u8;12]) -> (u8, u64) {
     let sum = pits.iter().sum();
-    let mut remaining_sum = sum;
+    let mut remaining_sum: u8 = sum;
     let mut index: u64 = 0;
     for i in 0..12 {
-        let next_remaining_sum = remaining_sum - pits[i];
+        let next_remaining_sum: u8 = remaining_sum - pits[i];
         //println!("next_remaining_sum {} remaining_sum {}", next_remaining_sum, remaining_sum);
         let conrs = CONFIGURATION_SUM[12-i-1][(next_remaining_sum+1) as usize];
         let cors = CONFIGURATION_SUM[12-i-1][(remaining_sum+1) as usize];
@@ -130,7 +130,7 @@ fn partition_to_index(pits: &[u8;12]) -> (u8, u64) {
         remaining_sum = next_remaining_sum;
         //println!("{} {} {}", i, remaining_sum, index);
     }
-    (sum, index)
+    (sum/2, index)
 }
 
 
@@ -208,7 +208,7 @@ fn get_simple_scores(scores: &mut Vec<Vec<PackedConfigurationScore>>, config: &C
     let (sum, index) = config.to_index();
     if scores[sum as usize][index as usize] == NotVisited.pack() {
         if config.pits[6..12].iter().sum::<u8>() == 0 {
-            scores[sum as usize][index as usize] = Score(sum as i8).pack();
+            scores[sum as usize][index as usize] = Score((sum*2) as i8).pack();
         }
     }
     scores[sum as usize] [index as usize]
@@ -216,7 +216,7 @@ fn get_simple_scores(scores: &mut Vec<Vec<PackedConfigurationScore>>, config: &C
 
 
 
-fn compute_score(scores: &mut Vec<Vec<PackedConfigurationScore>>, config_: &Configuration) {
+fn compute_score(scores: &mut Vec<Vec<PackedConfigurationScore>>, config_: &Configuration) -> PackedConfigurationScore {
     use ConfigurationScore::*;
     if get_simple_scores(scores, config_) == NotVisited.pack() {
         let mut stack = Vec::new();
@@ -250,8 +250,8 @@ fn compute_score(scores: &mut Vec<Vec<PackedConfigurationScore>>, config_: &Conf
 
                     /*
                             println!("Next moves are: ");
-                            for a in &possible_scores {
-                                println!(" {:?} ", a);
+                            for &(conf,a) in &possible_scores {
+                                println!(" {:?} ", (conf, a.unpack()) );
                             }
                             println!("");
                             */
@@ -308,6 +308,7 @@ fn compute_score(scores: &mut Vec<Vec<PackedConfigurationScore>>, config_: &Conf
             }
         }
     }
+    get_simple_scores(scores, config_)
 }
 
 fn main() {
@@ -326,11 +327,16 @@ compute_score(&mut scores, &Configuration {
     */
 
 
-    for i in 1..14 {
+    'outer:
+    for ii in 1..6 {
+        let i = ii*2;
+
         println!("{}", i);
+        println!("{}", CONFIGURATION_COUNT[12][i as usize] *16);
 
         scores.push(vec![ConfigurationScore::NotVisited.pack(); (CONFIGURATION_COUNT[12][i as usize]*16) as usize]);
         let mut pits = [0,0,0,0,0,0,0,0,0,0,0,i];
+
 
         loop {
             for currentRemainingSkips in 0..4 {
@@ -342,7 +348,7 @@ compute_score(&mut scores, &Configuration {
                     };
                     let s = compute_score(&mut scores, &config);
                     //println!("{:?}",s);
-                    //println!("The config {:?} has score {:?}", config, s);
+                    //println!("The config {:?} has score {:?}", config, s.unpack());
                 }
             }
             if next_partition(&mut pits) {
@@ -353,11 +359,12 @@ compute_score(&mut scores, &Configuration {
 
     println!("Will start writing to file.");
 
-    let mut file = File::create("rawoutput10pack").unwrap();
+    let mut file = File::create("bulb").unwrap();
     let mut file = BufWriter::new(file);
 
-    for (i,a) in scores.iter().enumerate() {
-        println!("{}", i);
+    for (ii,a) in scores.iter().enumerate() {
+        let i = ii*2;
+        println!("{} {}", i, a.len() );
         for &score in a{
             
             if let ConfigurationScore::Score(the_score) = score.unpack() {
