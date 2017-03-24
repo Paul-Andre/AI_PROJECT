@@ -44,11 +44,11 @@ public class Autoplay
             Process server = server_pb.start();
 
             ProcessBuilder client1_pb = new ProcessBuilder(
-                "java", "-cp", "bin", "-Xms520m", "-Xmx520m", "boardgame.Client", "student_player.StudentPlayer");
+                "java", "-cp", "bin", "-Xms520m", "-Xmx520m", "boardgame.Client", "student_player.StudentPlayerMinimax");
             client1_pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 
             ProcessBuilder client2_pb = new ProcessBuilder(
-                "java", "-cp", "bin", "-Xms520m", "-Xmx520m", "boardgame.Client", "bohnenspiel.RandomPlayer");
+                "java", "-cp", "bin", "-Xms520m", "-Xmx520m", "boardgame.Client", "student_player.StudentPlayerMCTS");
             client2_pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 
             for (int i=0; i < n_games; i++) {
