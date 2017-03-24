@@ -1,7 +1,9 @@
 package student_player;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 
 import bohnenspiel.BohnenspielBoardState;
 import bohnenspiel.BohnenspielMove;
@@ -18,19 +20,19 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
      * The constructor should do nothing else. */
     public StudentPlayerMinimax() { super("Top Memer"); }
 
-    /** This is the primary method that you need to implement.
-     * The ``board_state`` object contains the current state of the game,
-     * which your agent can use to make decisions. See the class
-bohnenspiel.RandomPlayer
-     * for another example agent. */
-    
+
     
     private int evaluationFunction(BohnenspielBoardState board_state) {
     	return board_state.getScore(player_id) - board_state.getScore(opponent_id);
     }
     
+    /** Returns a heuristic value of how different two states are. Used as an heuristic to determine what state should be expanded by alph-beta **/ 
+    private int distance(BohnenspielBoardState a, BohnenspielBoardState b) {
+    	return Math.abs( (a.getScore(0) - a.getScore(1)) - (b.getScore(0) - b.getScore(1)));
+    }
+    
     /** Evaluates a game state using minimax and returns a score based on the evaluation function **/
-    private int minimax(BohnenspielBoardState board_state, int remaining_depth, int alpha, int beta) {
+    private int minimax(final BohnenspielBoardState board_state, int remaining_depth, int alpha, int beta) {
     	
     	int winner = board_state.getWinner();
     	if (winner == opponent_id || board_state.getScore(opponent_id) > 36) {
@@ -50,14 +52,27 @@ bohnenspiel.RandomPlayer
     	ArrayList<BohnenspielMove> moves = board_state.getLegalMoves();
     	Collections.shuffle(moves);
     	
+    	
+    	final BohnenspielBoardState[] next_states = new BohnenspielBoardState[moves.size()];
+    	
+    	for (int i=0; i<moves.size(); i++) {
+    		BohnenspielBoardState cloned_board_state = (BohnenspielBoardState) board_state.clone();
+    		cloned_board_state.move(moves.get(i));
+    		next_states[i] = cloned_board_state;
+    	}
+    	
+    	
+    	Arrays.sort(next_states, new Comparator<BohnenspielBoardState>() {
+    		public int compare(BohnenspielBoardState a, BohnenspielBoardState b) {
+    			return distance(b, board_state) - distance(a, board_state);
+    		}
+    	});
+    	
+    	
 		if (board_state.getTurnPlayer() == player_id) {
     	
 	    	int max_score = -100000;
-	    	for (BohnenspielMove move: moves) {
-	    		BohnenspielBoardState cloned_board_state = (BohnenspielBoardState) board_state.clone();
-	    		
-	            cloned_board_state.move(move);
-	
+	    	for (BohnenspielBoardState cloned_board_state: next_states) {
 	            int score = minimax(cloned_board_state, remaining_depth-1, alpha, beta);
 	            if (score == 1000) {
 	            	return score;
@@ -77,10 +92,7 @@ bohnenspiel.RandomPlayer
 		}
 		else {
 			int min_score = 100000;
-	    	for (BohnenspielMove move: moves) {
-	    		BohnenspielBoardState cloned_board_state = (BohnenspielBoardState) board_state.clone();
-	    		
-	            cloned_board_state.move(move);
+	    	for (BohnenspielBoardState cloned_board_state: next_states) {
 	
 	            int score = minimax(cloned_board_state, remaining_depth-1, alpha, beta);
 	            if (score == -1000) {
@@ -105,11 +117,11 @@ bohnenspiel.RandomPlayer
     public BohnenspielMove chooseMove(BohnenspielBoardState board_state)
     {
         // Get the contents of the pits so we can use it to make decisions.
-        int[][] pits = board_state.getPits();
+        //int[][] pits = board_state.getPits();
 
         // Use ``player_id`` and ``opponent_id`` to get my pits and opponent pits.
-        int[] my_pits = pits[player_id];
-        int[] op_pits = pits[opponent_id];
+        //int[] my_pits = pits[player_id];
+        //int[] op_pits = pits[opponent_id];
 
         // Get the legal moves for the current board state.
         ArrayList<BohnenspielMove> moves = board_state.getLegalMoves();
@@ -120,7 +132,7 @@ bohnenspiel.RandomPlayer
         for (BohnenspielMove move: moves) {
     		BohnenspielBoardState cloned_board_state = (BohnenspielBoardState) board_state.clone();
     		cloned_board_state.move(move);
-            int score = minimax(cloned_board_state, 9, -100000,  100000);
+            int score = minimax(cloned_board_state, 11, -100000,  100000);
             if (score > best_score) {
             	best_score = score;
             	best_move = move;
