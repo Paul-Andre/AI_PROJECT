@@ -4,6 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import bohnenspiel.BohnenspielBoardState;
 import bohnenspiel.BohnenspielMove;
@@ -111,35 +118,72 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
     }
     
 
-    public BohnenspielMove chooseMove(BohnenspielBoardState board_state)
+    public BohnenspielMove chooseMove(final BohnenspielBoardState board_state)
     {
     	long startTime = System.nanoTime();
         // Get the legal moves for the current board state.
-        ArrayList<BohnenspielMove> moves = board_state.getLegalMoves();
+        final ArrayList<BohnenspielMove> moves = board_state.getLegalMoves();
         Collections.shuffle(moves);
      
+        int[][] pits = board_state.getPits();
+        
+        int sum = 0;
+        for (int i=0; i<2; i++) {
+        	for (int j=0; j<6; j++) {
+        		sum += pits[i][j];
+        	}
+        }
         
         
-        for (int i=11; ;i++) {
-	        BohnenspielMove best_move = null;
-	        int best_score = -10000;
-	        for (BohnenspielMove move: moves) {
-	    		BohnenspielBoardState cloned_board_state = (BohnenspielBoardState) board_state.clone();
-	    		cloned_board_state.move(move);
-	            int score = minimax(cloned_board_state, i, -100000,  100000);
-	            if (score > best_score) {
-	            	best_score = score;
-	            	best_move = move;
-	            }
-	            //System.out.println("Considering move "+move.toPrettyString()+" with score "+score);
+        BohnenspielMove previous_best_move = null;
+        
+        for (int i=9; i<150; i++) {
+        
+        	
+	        //http://stackoverflow.com/questions/1164301/how-do-i-call-some-blocking-method-with-a-timeout-in-java
+	        ExecutorService executor = Executors.newCachedThreadPool();
+	        
+	        final int final_i = i;
+	        Callable<Object> task = new Callable<Object>() {
+	           public Object call() {
+	        	   
+					BohnenspielMove best_move = null;
+					int best_score = -10000;
+					
+					for (BohnenspielMove move : moves) {
+						BohnenspielBoardState cloned_board_state = (BohnenspielBoardState) board_state.clone();
+						cloned_board_state.move(move);
+						int score = minimax(cloned_board_state, final_i, -100000, 100000);
+						if (score > best_score) {
+							best_score = score;
+							best_move = move;
+						}
 	
-	    	}
-	        long endTime = System.nanoTime();
-	        long duration = endTime - startTime;
-	        if (duration > 100 * 1000000) {
-	        	System.out.println("Went "+(i+1)+" levels deep.");
-	        	return best_move;
+					}
+					
+					return best_move;
+	           }
+	        };
+	        
+	        Future<Object> future = executor.submit(task);
+	        try {
+	           BohnenspielMove result = (BohnenspielMove) future.get(650*1000000 - (System.nanoTime() - startTime), TimeUnit.NANOSECONDS);
+	           previous_best_move = result;
+	        } catch (TimeoutException ex) {
+	        	System.out.println("Looked "+(i+1)+" moves ahead with "+sum+" beans on the board.");
+	        	return previous_best_move;
+	        } catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+	           future.cancel(true); // may or may not desire this
 	        }
         }
+
+    	System.out.println("Looked "+150+" moves ahead with "+sum+" beans on the board.");
+        return previous_best_move;
     }
 }
