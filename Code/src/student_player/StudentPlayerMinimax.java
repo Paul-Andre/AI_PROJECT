@@ -25,7 +25,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
      * This is important, because this is what the code that runs the
      * competition uses to associate you with your agent.
      * The constructor should do nothing else. */
-    public StudentPlayerMinimax() { super("H4RDC0R3"); }
+    public StudentPlayerMinimax() { super("-_-_-_-_-_-"); }
     
     private int evaluationFunction(BohnenspielBoardState board_state) {
     	return board_state.getScore(player_id) - board_state.getScore(opponent_id);
@@ -121,6 +121,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
     public BohnenspielMove chooseMove(final BohnenspielBoardState board_state)
     {
     	long startTime = System.nanoTime();
+    	
         // Get the legal moves for the current board state.
         final ArrayList<BohnenspielMove> moves = board_state.getLegalMoves();
         Collections.shuffle(moves);
@@ -167,7 +168,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
 	        
 	        Future<Object> future = executor.submit(task);
 	        try {
-	           BohnenspielMove result = (BohnenspielMove) future.get(650*1000000 - (System.nanoTime() - startTime), TimeUnit.NANOSECONDS);
+	           BohnenspielMove result = (BohnenspielMove) future.get(695*1000000 - (System.nanoTime() - startTime), TimeUnit.NANOSECONDS);
 	           previous_best_move = result;
 	        } catch (TimeoutException ex) {
 	        	System.out.println("Looked "+(i+1)+" moves ahead with "+sum+" beans on the board.");
