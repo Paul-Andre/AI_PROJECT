@@ -171,7 +171,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
 	           BohnenspielMove result = (BohnenspielMove) future.get(695*1000000 - (System.nanoTime() - startTime), TimeUnit.NANOSECONDS);
 	           previous_best_move = result;
 	        } catch (TimeoutException ex) {
-	        	System.out.println("Looked "+(i+1)+" moves ahead with "+sum+" beans on the board.");
+	        	//System.out.println("Looked "+(i+1)+" moves ahead with "+sum+" beans on the board.");
 	        	return previous_best_move;
 	        } catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -184,7 +184,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
 	        }
         }
 
-    	System.out.println("Looked "+150+" moves ahead with "+sum+" beans on the board.");
+    	//System.out.println("Looked "+150+" moves ahead with "+sum+" beans on the board.");
         return previous_best_move;
     }
 }
