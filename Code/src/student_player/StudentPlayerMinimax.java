@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -25,7 +26,14 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
      * This is important, because this is what the code that runs the
      * competition uses to associate you with your agent.
      * The constructor should do nothing else. */
-    public StudentPlayerMinimax() { super("-_-_-_-_-_-"); }
+    public StudentPlayerMinimax() { super("-_- -_- -_- -_- -_-"); }
+    
+    
+    private BohnenspielMove[] killerTable = new BohnenspielMove[150];
+    
+    private static boolean equals(BohnenspielMove a, BohnenspielMove b) {
+    	return a != null && b != null && a.getMoveType() == b.getMoveType() && a.getPit() == b.getPit();
+    }
     
     private int evaluationFunction(BohnenspielBoardState board_state) {
     	return board_state.getScore(player_id) - board_state.getScore(opponent_id);
@@ -35,8 +43,21 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
     	return Math.abs( (a.getScore(0) - a.getScore(1)) - (b.getScore(0) - b.getScore(1)) );
     }
     
+    /** A board state and the move that generated it
+     * Used to reorder moves based using an heuristic that depends both on the move and the board state it generates.
+     */
+    private class BoardAndMove {
+    	BohnenspielBoardState board;
+    	BohnenspielMove move;
+    	
+    	public BoardAndMove(BohnenspielBoardState b, BohnenspielMove m) {
+    		this.board = b;
+    		this.move = m;
+    	}
+    }
+    
     /** Evaluates a game state using minimax and returns a score based on the evaluation function **/
-    private int minimax(final BohnenspielBoardState board_state, int remaining_depth, int alpha, int beta) {
+    private int minimax(final BohnenspielBoardState board_state, int alpha, int beta, final int current_depth, int max_depth) {
     	
     	int winner = board_state.getWinner();
     	if (winner == opponent_id || board_state.getScore(opponent_id) > 36) {
@@ -49,26 +70,35 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
     		return 0;
     	}
 
-    	if (remaining_depth == 0) {
+    	if (current_depth == max_depth) {
     		return evaluationFunction(board_state);
     	}
     	
+    	
     	ArrayList<BohnenspielMove> moves = board_state.getLegalMoves();
-    	Collections.shuffle(moves);
+    	final ArrayList<BoardAndMove> next_states = new ArrayList<BoardAndMove>(moves.size());
     	
-    	
-    	final BohnenspielBoardState[] next_states = new BohnenspielBoardState[moves.size()];
-    	
-    	for (int i=0; i<moves.size(); i++) {
+    	for (BohnenspielMove move: moves) {
     		BohnenspielBoardState cloned_board_state = (BohnenspielBoardState) board_state.clone();
-    		cloned_board_state.move(moves.get(i));
-    		next_states[i] = cloned_board_state;
+    		cloned_board_state.move(move);
+    		next_states.add(new BoardAndMove(cloned_board_state, move));
     	}
     	
+    	Collections.shuffle(next_states);
     	
-    	Arrays.sort(next_states, new Comparator<BohnenspielBoardState>() {
-    		public int compare(BohnenspielBoardState a, BohnenspielBoardState b) {
-    			return distance(b, board_state) - distance(a, board_state);
+    	Collections.sort(next_states, new Comparator<BoardAndMove>() {
+    		public int compare(BoardAndMove a, BoardAndMove b) {
+    			int v = distance(b.board, board_state) - distance(a.board, board_state);
+    			if (v!=0) {
+    				return v;
+    			}
+    			if (StudentPlayerMinimax.equals(a.move, killerTable[current_depth])){
+    				return -1;
+    			}
+    			else if (StudentPlayerMinimax.equals (b.move, killerTable[current_depth])) {
+    				return 1;
+    			}
+    			return 0;
     		}
     	});
     	
@@ -76,8 +106,9 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
 		if (board_state.getTurnPlayer() == player_id) {
     	
 	    	int max_score = -100000;
-	    	for (BohnenspielBoardState cloned_board_state: next_states) {
-	            int score = minimax(cloned_board_state, remaining_depth-1, alpha, beta);
+	    	for (BoardAndMove board_and_move: next_states) {
+	    		BohnenspielBoardState cloned_board_state = board_and_move.board; 
+	            int score = minimax(cloned_board_state, alpha, beta, current_depth+1, max_depth);
 	            if (score == 1000) {
 	            	return score;
 	            }
@@ -88,6 +119,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
 	            	alpha = max_score;
 	            }
 	            if (beta <= alpha) {
+	            	killerTable[current_depth] = board_and_move.move;
 	            	break;
 	            }
 	
@@ -96,9 +128,10 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
 		}
 		else {
 			int min_score = 100000;
-	    	for (BohnenspielBoardState cloned_board_state: next_states) {
+	    	for (BoardAndMove board_and_move: next_states) {
+	    		BohnenspielBoardState cloned_board_state = board_and_move.board; 
 	
-	            int score = minimax(cloned_board_state, remaining_depth-1, alpha, beta);
+	            int score = minimax(cloned_board_state, alpha, beta, current_depth+1, max_depth);
 	            if (score == -1000) {
 	            	return score;
 	            }
@@ -109,6 +142,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
 	            	beta = min_score;
 	            }
 	            if (beta <= alpha) {
+	            	killerTable[current_depth] = board_and_move.move;
 	            	break;
 	            }
 	
@@ -135,6 +169,9 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
         	}
         }
         
+        for (int i=0; i<150; i++) {
+        	killerTable[i] = null;
+        }
         
         BohnenspielMove previous_best_move = null;
         
@@ -154,7 +191,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
 					for (BohnenspielMove move : moves) {
 						BohnenspielBoardState cloned_board_state = (BohnenspielBoardState) board_state.clone();
 						cloned_board_state.move(move);
-						int score = minimax(cloned_board_state, final_i, -100000, 100000);
+						int score = minimax(cloned_board_state, -100000, 100000, 0, final_i);
 						if (score > best_score) {
 							best_score = score;
 							best_move = move;
@@ -171,7 +208,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
 	           BohnenspielMove result = (BohnenspielMove) future.get(695*1000000 - (System.nanoTime() - startTime), TimeUnit.NANOSECONDS);
 	           previous_best_move = result;
 	        } catch (TimeoutException ex) {
-	        	//System.out.println("Looked "+(i+1)+" moves ahead with "+sum+" beans on the board.");
+	        	System.out.println("With killer looked "+(i+1)+" moves ahead with "+sum+" beans on the board.");
 	        	return previous_best_move;
 	        } catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -184,7 +221,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
 	        }
         }
 
-    	//System.out.println("Looked "+150+" moves ahead with "+sum+" beans on the board.");
+    	System.out.println("With killer looked "+150+" moves ahead with "+sum+" beans on the board.");
         return previous_best_move;
     }
 }
