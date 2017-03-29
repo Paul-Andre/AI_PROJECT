@@ -72,7 +72,7 @@ public class StudentPlayerMCTS extends BohnenspielPlayer {
     
     private double monte(BohnenspielBoardState a) {
     	int total = 0;
-    	int count = 25;
+    	int count = 50;
     	for (int i=0; i<count; i++) {
     		BohnenspielBoardState cloned = (BohnenspielBoardState) a.clone();
     		int winner = randomDescent(cloned);
@@ -194,7 +194,7 @@ public class StudentPlayerMCTS extends BohnenspielPlayer {
         
         BohnenspielMove previous_best_move = null;
         
-        for (int i=2; i<150; i++) {
+        for (int i=3; i<150; i++) {
         
         	
 	        //http://stackoverflow.com/questions/1164301/how-do-i-call-some-blocking-method-with-a-timeout-in-java
@@ -227,7 +227,7 @@ public class StudentPlayerMCTS extends BohnenspielPlayer {
 	           BohnenspielMove result = (BohnenspielMove) future.get(695*1000000 - (System.nanoTime() - startTime), TimeUnit.NANOSECONDS);
 	           previous_best_move = result;
 	        } catch (TimeoutException ex) {
-	        	//System.out.println("Looked "+(i+1)+" moves ahead with "+sum+" beans on the board.");
+	        	System.out.println("Looked "+(i+1)+" moves ahead with "+sum+" beans on the board.");
 	        	return previous_best_move;
 	        } catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -240,7 +240,7 @@ public class StudentPlayerMCTS extends BohnenspielPlayer {
 	        }
         }
 
-    	//System.out.println("Looked "+150+" moves ahead with "+sum+" beans on the board.");
+    	System.out.println("Looked "+150+" moves ahead with "+sum+" beans on the board.");
         return previous_best_move;
     }
 }
