@@ -24,6 +24,11 @@ public class GreedyBohnenspielPlayer extends BohnenspielPlayer {
 
         // Get the legal moves for the current board state.
         ArrayList<BohnenspielMove> moves = board_state.getLegalMoves();
+        
+        if (moves.size() == 0) {
+        	System.out.println("Why are you asking me to move if there are no moves possible?");
+        	return null;
+        }
 
         int score;
         int bestscore=-1;
