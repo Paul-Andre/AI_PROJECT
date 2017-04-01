@@ -401,7 +401,7 @@ public class BohnenspielBoardState extends BoardState{
     /** Return whether the given player has any more valid moves. */
     private boolean hasValidMoves(int player_id){
         
-    	if (getCredit(player_id)>0)
+    	if (getCredit(player_id)>0 && turnsToSkip[player_id] == 0)
     		return true;
     	
     	int pit = 0;
