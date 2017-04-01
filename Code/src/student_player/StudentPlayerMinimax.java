@@ -168,7 +168,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
 	        
 	        Future<Object> future = executor.submit(task);
 	        try {
-	           BohnenspielMove result = (BohnenspielMove) future.get(950*1000000 - (System.nanoTime() - startTime), TimeUnit.NANOSECONDS);
+	           BohnenspielMove result = (BohnenspielMove) future.get(675*1000000 - (System.nanoTime() - startTime), TimeUnit.NANOSECONDS);
 	           previous_best_move = result;
 	        } catch (TimeoutException ex) {
 	        	System.out.println("Standard eval looked "+(i+1)+" moves ahead with "+sum+" beans on the board.");
