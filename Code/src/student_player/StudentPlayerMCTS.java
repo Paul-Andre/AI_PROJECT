@@ -72,7 +72,7 @@ public class StudentPlayerMCTS extends BohnenspielPlayer {
     
     private double monte(BohnenspielBoardState a) {
     	int total = 0;
-    	int count = 25;
+    	int count = 50;
     	for (int i=0; i<count; i++) {
     		BohnenspielBoardState cloned = (BohnenspielBoardState) a.clone();
     		int winner = randomDescent(cloned);
@@ -177,7 +177,7 @@ public class StudentPlayerMCTS extends BohnenspielPlayer {
     public BohnenspielMove chooseMove(final BohnenspielBoardState board_state)
     {
     	long startTime = System.nanoTime();
-    	
+    	final long timeout = (board_state.getTurnNumber() == 0)? 29500 : 650; 
         // Get the legal moves for the current board state.
         final ArrayList<BohnenspielMove> moves = board_state.getLegalMoves();
         Collections.shuffle(moves);
@@ -224,10 +224,10 @@ public class StudentPlayerMCTS extends BohnenspielPlayer {
 	        
 	        Future<Object> future = executor.submit(task);
 	        try {
-	           BohnenspielMove result = (BohnenspielMove) future.get(675*1000000 - (System.nanoTime() - startTime), TimeUnit.NANOSECONDS);
+	           BohnenspielMove result = (BohnenspielMove) future.get(timeout*1000000 - (System.nanoTime() - startTime), TimeUnit.NANOSECONDS);
 	           previous_best_move = result;
 	        } catch (TimeoutException ex) {
-	        	//System.out.println("Looked "+(i+1)+" moves ahead with "+sum+" beans on the board.");
+	        	System.out.println("MCTS looked "+(i)+" moves ahead with "+sum+" beans on the board.");
 	        	return previous_best_move;
 	        } catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -240,7 +240,7 @@ public class StudentPlayerMCTS extends BohnenspielPlayer {
 	        }
         }
 
-    	//System.out.println("Looked "+150+" moves ahead with "+sum+" beans on the board.");
+    	System.out.println("MCTS Looked "+150+" moves ahead with "+sum+" beans on the board.");
         return previous_best_move;
     }
 }

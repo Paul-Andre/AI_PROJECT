@@ -30,7 +30,13 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
     
 
     private int evaluationFunction(BohnenspielBoardState board_state) {
-    	return board_state.getScore(player_id) - board_state.getScore(opponent_id);
+    	int[][] pits = board_state.getPits();
+	        
+        int sum = 0;
+        	for (int j=0; j<6; j++) {
+        		sum += pits[player_id][j];
+        	}
+    	return board_state.getScore(player_id) + sum;
     }
     
     private int distance(BohnenspielBoardState a, BohnenspielBoardState b) {
@@ -122,6 +128,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
     public BohnenspielMove chooseMove(final BohnenspielBoardState board_state)
     {
     	long startTime = System.nanoTime();
+    	final long timeout = (board_state.getTurnNumber() == 0)? 29500 : 650; 
     	
         // Get the legal moves for the current board state.
         final ArrayList<BohnenspielMove> moves = board_state.getLegalMoves();
@@ -138,15 +145,15 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
         
         BohnenspielMove previous_best_move = null;
         
-        for (int i=9; i<150; i++) {
+        for (int i=8; i<150; i++) {
         
         	
 	        //http://stackoverflow.com/questions/1164301/how-do-i-call-some-blocking-method-with-a-timeout-in-java
 	        ExecutorService executor = Executors.newCachedThreadPool();
 	        
 	        final int final_i = i;
-	        Callable<Object> task = new Callable<Object>() {
-	           public Object call() {
+	        Callable<BohnenspielMove> task = new Callable<BohnenspielMove>() {
+	           public BohnenspielMove call() {
 	        	   
 					BohnenspielMove best_move = null;
 					int best_score = -10000;
@@ -166,12 +173,12 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
 	           }
 	        };
 	        
-	        Future<Object> future = executor.submit(task);
+	        Future<BohnenspielMove> future = executor.submit(task);
 	        try {
-	           BohnenspielMove result = (BohnenspielMove) future.get(675*1000000 - (System.nanoTime() - startTime), TimeUnit.NANOSECONDS);
+	           BohnenspielMove result = future.get(timeout*1000000l - (System.nanoTime() - startTime), TimeUnit.NANOSECONDS);
 	           previous_best_move = result;
 	        } catch (TimeoutException ex) {
-	        	System.out.println("Standard eval looked "+(i+1)+" moves ahead with "+sum+" beans on the board.");
+	        	System.out.println("Standard eval looked "+(i)+" moves ahead with "+sum+" beans on the board.");
 	        	return previous_best_move;
 	        } catch (InterruptedException e) {
 				// TODO Auto-generated catch block
