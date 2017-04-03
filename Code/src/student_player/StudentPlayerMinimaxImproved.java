@@ -308,7 +308,8 @@ public class StudentPlayerMinimaxImproved extends BohnenspielPlayer {
     	
     	//System.out.println("Turn " + boardState.getTurnNumber());
     	
-    	final long timeout = (boardState.getTurnNumber() == 0)? 29500 : 650; 
+    	//final long timeout = (boardState.getTurnNumber() == 0)? 29500 : 650; 
+    	final long timeout = (boardState.getTurnNumber() == 0)? 29000 : 600; // Play with Youri;
     	
         int[][] pits = boardState.getPits();
         
@@ -323,7 +324,8 @@ public class StudentPlayerMinimaxImproved extends BohnenspielPlayer {
         
         
         
-        for (int i=10; i<250; i++) {
+        int baseDepth = (boardState.getTurnNumber() == 0)? 15 : 10;
+        for (int i=baseDepth; i<250; i++) {
         
         	
 	        //http://stackoverflow.com/questions/1164301/how-do-i-call-some-blocking-method-with-a-timeout-in-java
@@ -357,10 +359,11 @@ public class StudentPlayerMinimaxImproved extends BohnenspielPlayer {
 	        		return newScoreAndMoves.moveChain.currentMove;
         		}
 	        	previousBestMoves = newScoreAndMoves.moveChain;
+	        	//System.out.println(" "+i+ " " +(System.nanoTime() - startTime));
 	           
 	        } catch (TimeoutException ex) {
 	        	
-	        	System.out.println("Different eval looked "+(i)+" moves ahead with "+sum+" beans on the board. At turn "+ boardState.getTurnNumber());
+	        	System.out.println("Different eval looked "+(i-1)+" moves ahead with "+sum+" beans on the board. At turn "+ boardState.getTurnNumber());
 	        	return previousBestMoves.currentMove;
 	        } catch (InterruptedException e) {
 				// TODO Auto-generated catch block
