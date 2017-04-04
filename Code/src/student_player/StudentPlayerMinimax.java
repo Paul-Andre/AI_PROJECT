@@ -25,7 +25,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
      * This is important, because this is what the code that runs the
      * competition uses to associate you with your agent.
      * The constructor should do nothing else. */
-    public StudentPlayerMinimax() { super("-_-"); }
+    public StudentPlayerMinimax() { super("Hoarder"); }
     
     private int evaluationFunction(BohnenspielBoardState board_state) {
     	int winner = board_state.getWinner();
@@ -39,7 +39,14 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
     		return 0;
     	}
     	
-    	return board_state.getScore(player_id) - board_state.getScore(opponent_id);
+    	int[] ourPits = board_state.getPits()[player_id];
+    	int sum =0; 
+    	for (int a: ourPits) {
+    		sum+= a;
+    	}
+    	
+    	return sum + board_state.getScore(player_id);
+    	//return board_state.getScore(player_id) - board_state.getScore(opponent_id);
     }
     
     class BoardAndScore {
@@ -78,21 +85,20 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
     		
     		int maxScore = -10000;
     		
-    		if (moves.size() == 0) 
     		for (BohnenspielMove move: moves) {
 	    		BohnenspielBoardState cloned_board_state = (BohnenspielBoardState) board_state.clone();
 	    		cloned_board_state.move(move);
-	    		int score = -flip*evaluationFunction(cloned_board_state);
+	    		int score = flip*evaluationFunction(cloned_board_state);
 	    		if (score > maxScore) {
 	    			maxScore = score;
 	    		}
     		}
-    		return -flip*maxScore;
+    		return flip*maxScore;
     	}
     
     	
     	final BoardAndScore[] next_states = new BoardAndScore[moves.size()];
-    	
+    	// 
     	for (int i=0; i<moves.size(); i++) {
     		BohnenspielBoardState cloned_board_state = (BohnenspielBoardState) board_state.clone();
     		cloned_board_state.move(moves.get(i));
@@ -160,6 +166,8 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
     	
         // Get the legal moves for the current board state.
         final ArrayList<BohnenspielMove> moves = board_state.getLegalMoves();
+        
+       // if () 
         Collections.shuffle(moves);
      
         int[][] pits = board_state.getPits();
@@ -174,7 +182,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
         
         BohnenspielMove previous_best_move = null;
         
-        for (int i=10; i<150; i++) {
+        for (int i=11; i<150; i++) {
         
         	
 	        //http://stackoverflow.com/questions/1164301/how-do-i-call-some-blocking-method-with-a-timeout-in-java
@@ -207,7 +215,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
 	           BohnenspielMove result = (BohnenspielMove) future.get(695*1000000 - (System.nanoTime() - startTime), TimeUnit.NANOSECONDS);
 	           previous_best_move = result;
 	        } catch (TimeoutException ex) {
-	        	System.out.println("Looked "+(i+1)+" moves ahead with "+sum+" beans on the board.");
+	        	//System.out.println("Looked "+(i+1)+" moves ahead with "+sum+" beans on the board.");
 	        	return previous_best_move;
 	        } catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -220,7 +228,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
 	        }
         }
 
-    	System.out.println("Looked "+150+" moves ahead with "+sum+" beans on the board.");
+    	//System.out.println("Looked "+150+" moves ahead with "+sum+" beans on the board.");
         return previous_best_move;
     }
 }

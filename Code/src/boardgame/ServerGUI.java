@@ -42,7 +42,10 @@ implements BoardPanel.BoardPanelListener  {
     	"bohnenspiel.RandomBohnenspielPlayer",
     	"bohnenspiel.GreedyBohnenspielPlayer",
     	"student_player.StudentPlayer",
+    	"student_player.StudentPlayer2",
     	"student_player.StudentPlayerMinimax",
+    	"student_player.StudentPlayerMinimax2",
+    	"student_player.StudentPlayerMinimax3",
     	"student_player.StudentPlayerMCTS"};
     private static final int BOARD_SIZE = 800;
     private static final int LIST_WIDTH = 280;
