@@ -24,8 +24,7 @@ def endgame(b) :
         print("Which is 10 to the",math.log10(tot),"or 2 to the",math.log2(tot))
         print("Which is",tot/1000000,"megabytes")
 
-
-endgame(20)
-print(get(12,20)-get(6,20))
-print(get(12,72))
-print(2**31)
+#endgame(20)
+#print(get(12,20)-get(6,20))
+print(get(10,99))
+#print(2**31)
