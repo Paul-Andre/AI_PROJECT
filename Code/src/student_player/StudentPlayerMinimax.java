@@ -128,7 +128,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
     public BohnenspielMove chooseMove(final BohnenspielBoardState board_state)
     {
     	long startTime = System.nanoTime();
-    	final long timeout = (board_state.getTurnNumber() == 0)? 29500 : 650; 
+    	final long timeout = (board_state.getTurnNumber() == 0)? 2950 : 650; 
     	
         // Get the legal moves for the current board state.
         final ArrayList<BohnenspielMove> moves = board_state.getLegalMoves();
