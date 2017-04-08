@@ -128,7 +128,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
     public BohnenspielMove chooseMove(final BohnenspielBoardState board_state)
     {
     	long startTime = System.nanoTime();
-    	final long timeout = (board_state.getTurnNumber() == 0)? 29500 : 650; 
+    	final long timeout = (board_state.getTurnNumber() == 0)? 2950 : 650; 
     	
         // Get the legal moves for the current board state.
         final ArrayList<BohnenspielMove> moves = board_state.getLegalMoves();
@@ -145,7 +145,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
         
         BohnenspielMove previous_best_move = null;
         
-        for (int i=8; i<150; i++) {
+        for (int i=7; i<150; i++) {
         
         	
 	        //http://stackoverflow.com/questions/1164301/how-do-i-call-some-blocking-method-with-a-timeout-in-java
