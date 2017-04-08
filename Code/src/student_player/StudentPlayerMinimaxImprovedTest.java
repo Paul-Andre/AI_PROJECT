@@ -20,13 +20,13 @@ import bohnenspiel.BohnenspielMove.MoveType;
 import student_player.mytools.MyTools;
 
 /** A Bohnenspiel player submitted by a student. */
-public class StudentPlayerMinimaxImproved extends BohnenspielPlayer {
+public class StudentPlayerMinimaxImprovedTest extends BohnenspielPlayer {
 
     /** You must modify this constructor to return your student number.
      * This is important, because this is what the code that runs the
      * competition uses to associate you with your agent.
      * The constructor should do nothing else. */
-    public StudentPlayerMinimaxImproved() { super("^_^ ^_^ ^_^"); }
+    public StudentPlayerMinimaxImprovedTest() { super("^_^ ^_^ Test"); }
     
     private static final int MAX_SCORE = 10000;
     
@@ -44,7 +44,14 @@ public class StudentPlayerMinimaxImproved extends BohnenspielPlayer {
 	    	if (opponentScore > 36) {
 	    		return - MAX_SCORE; 
 	    	}
-	    	return playerScore-opponentScore;
+
+			int[][] pits = boardState.getPits();
+			int sum = 0;
+			for (int j = 0; j < 6; j++) {
+				sum += pits[player_id][j];
+			}
+
+	    	return playerScore + sum;
     	}
     	else if (winner == player_id) {
     		return MAX_SCORE;
@@ -308,8 +315,7 @@ public class StudentPlayerMinimaxImproved extends BohnenspielPlayer {
     	
     	//System.out.println("Turn " + boardState.getTurnNumber());
     	
-    	//final long timeout = (boardState.getTurnNumber() == 0)? 29500 : 650; 
-    	final long timeout = (boardState.getTurnNumber() == 0)? 1500 : 700; // Play with Youri;
+    	final long timeout = (boardState.getTurnNumber() == 0)? 1500 : 700; 
     	
         int[][] pits = boardState.getPits();
         
@@ -351,11 +357,11 @@ public class StudentPlayerMinimaxImproved extends BohnenspielPlayer {
 	        try {
 	        	ScoreAndMoveChain newScoreAndMoves = future.get(timeout*1000000l - (System.nanoTime() - startTime), TimeUnit.NANOSECONDS);
 	        	if (newScoreAndMoves.score == MAX_SCORE) {
-	        		//System.out.println("Winning after searching "+i+" levels! At turn "+ boardState.getTurnNumber());
+	        		//System.out.println("Test Winning after searching "+i+" levels! At turn "+ boardState.getTurnNumber());
 	        		return newScoreAndMoves.moveChain.currentMove;
 	        	}
         		if (newScoreAndMoves.score == -MAX_SCORE) {
-	        		//System.out.println("Giving up after searching "+i+" levels. :(");
+	        		//System.out.println("Test Giving up after searching "+i+" levels. :(");
 	        		return newScoreAndMoves.moveChain.currentMove;
         		}
 	        	previousBestMoves = newScoreAndMoves.moveChain;
@@ -363,7 +369,7 @@ public class StudentPlayerMinimaxImproved extends BohnenspielPlayer {
 	           
 	        } catch (TimeoutException ex) {
 	        	
-	        	//System.out.println("Different eval looked "+(i-1)+" moves ahead with "+sum+" beans on the board. At turn "+ boardState.getTurnNumber());
+	        	//System.out.println("Test looked "+(i-1)+" moves ahead with "+sum+" beans on the board. At turn "+ boardState.getTurnNumber());
 	        	return previousBestMoves.currentMove;
 	        } catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -377,7 +383,7 @@ public class StudentPlayerMinimaxImproved extends BohnenspielPlayer {
         }
 
 
-    	//System.out.println("Different eval looked "+250+" moves ahead with "+sum+" beans on the board.");
+    	//System.out.println("Test looked "+250+" moves ahead with "+sum+" beans on the board.");
         
         
         return previousBestMoves.currentMove;
