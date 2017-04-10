@@ -359,19 +359,13 @@ fn compute_score(scores: &mut Vec<PackedConfigurationScore>, config_: &Configura
 
 fn main() {
 
-    let num = 6u8;
+    let num = 4u8;
 
     let mut scores: Vec<PackedConfigurationScore> = vec![ConfigurationScore::NotVisited.pack(); (EVEN_PARTITIONS[num as usize]*15) as usize];
 
-    /*
-compute_score(&mut scores, &Configuration {
-    pits: [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0], player_remaining_skips: 0, opponent_remaining_skips: 0 });
-    */
+    let mut file = File::create(format!("uncompressed_endgames_since_beginning_till_{}",num*2)).unwrap();
+    let mut file = BufWriter::new(file);
 
-    /*
-compute_score(&mut scores, &Configuration {
-    pits: [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1], player_remaining_skips: 0, opponent_remaining_skips: 0 });
-    */
 
     let mut count: u64 = 0;
 
@@ -410,14 +404,31 @@ compute_score(&mut scores, &Configuration {
                 break;
             }
         }
-        println!("Done {}", i);
+        println!("Now righting to file {}", i);
+
+        let start = (EVEN_PARTITIONS[(ii-1) as usize]*15) as usize;
+        let end = (EVEN_PARTITIONS[ii as usize]*15) as usize;
+        
+        for score in scores[start..end].iter() {
+
+            if let ConfigurationScore::Score(the_score) = score.unpack() {
+                let buffer: [u8; 1] = [the_score as u8];
+                file.write_all(&buffer).unwrap();
+            }
+            else {
+                panic!("This should all be filled out.");
+            }
+        }
+
+        println!("Done righting to file {}", i);
+
+
     }
+    
 
     /*
     println!("Will start writing to file.");
 
-    let mut file = File::create("bulb").unwrap();
-    let mut file = BufWriter::new(file);
 
     for (ii,a) in scores.iter().enumerate() {
         let i = ii*2;
