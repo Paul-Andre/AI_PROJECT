@@ -35,6 +35,12 @@ fn insert<Inner: Iterator<Item=i8>, W: Write>(w: &mut W,map: &mut HashMap<(u32, 
             match map.entry(pair) {
                 hash_map::Entry::Occupied(occupied) => *occupied.get(),
                 hash_map::Entry::Vacant(vacant) => {
+                    if (a==0) {
+                        print!("0");
+                    }
+                    if (b==0) {
+                        print!("0");
+                    }
                     w.write_u32::<BigEndian>(a).unwrap();
                     w.write_u32::<BigEndian>(b).unwrap();
                     let r = (*el_w) as u32;
@@ -70,6 +76,12 @@ fn main() {
         prev = match map.entry(pair) {
             hash_map::Entry::Occupied(occupied) => *occupied.get(),
             hash_map::Entry::Vacant(vacant) => {
+                    if (prev==0) {
+                        print!("0");
+                    }
+                    if (next==0) {
+                        print!("0");
+                    }
                 output.write_u32::<BigEndian>(prev).unwrap();
                 output.write_u32::<BigEndian>(next).unwrap();
                 let r = (el_w + 38) as u32;
