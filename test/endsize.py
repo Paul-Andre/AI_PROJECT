@@ -19,12 +19,15 @@ def get(n,m) :
 def endgame(b) :
     tot = 0;
     for i in range(0,b+1,2):
-        tot += (get(12, i))*16
+        tot += (get(12, i))*17
         print("With",i,"beans on the board, there are",tot,"endgames.")
         print("Which is 10 to the",math.log10(tot),"or 2 to the",math.log2(tot))
         print("Which is",tot/1000000,"megabytes")
 
-#endgame(20)
+endgame(72)
 #print(get(12,20)-get(6,20))
 print(get(10,99))
+print(2**31)
+print(10**10)
+print(2**63)
 #print(2**31)
