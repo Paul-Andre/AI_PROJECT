@@ -242,16 +242,17 @@ public class StudentPlayerMinimaxImproved extends BohnenspielPlayer {
     	//final long timeout = (boardState.getTurnNumber() == 0)? 29000 : 600; // Play with Youri;
     	
         int[][] pits = boardState.getPits();
-        
+       
+        /*
         int sum = 0;
         for (int i=0; i<2; i++) {
         	for (int j=0; j<6; j++) {
         		sum += pits[i][j];
         	}
         }
+        */
         
         MoveChain previousBestMoves = null;
-        
         
         
         int baseDepth = (boardState.getTurnNumber() == 0)? 16 : 12;
@@ -281,11 +282,11 @@ public class StudentPlayerMinimaxImproved extends BohnenspielPlayer {
 	        try {
 	        	ScoreAndMoveChain newScoreAndMoves = future.get(timeout*1_000_000l - (System.nanoTime() - startTime), TimeUnit.NANOSECONDS);
 	        	if (newScoreAndMoves.score == MAX_SCORE) {
-	        		System.out.println("Winning after searching "+i+" levels! At turn "+ boardState.getTurnNumber());
+	        		//System.out.println("Winning after searching "+i+" levels! At turn "+ boardState.getTurnNumber());
 	        		return newScoreAndMoves.moveChain.currentMove;
 	        	}
         		if (newScoreAndMoves.score == -MAX_SCORE) {
-	        		System.out.println("Giving up after searching "+i+" levels. :(");
+	        		//System.out.println("Giving up after searching "+i+" levels. :(");
 	        		return newScoreAndMoves.moveChain.currentMove;
         		}
 	        	previousBestMoves = newScoreAndMoves.moveChain;
@@ -293,7 +294,7 @@ public class StudentPlayerMinimaxImproved extends BohnenspielPlayer {
 	           
 	        } catch (TimeoutException ex) {
 	        	
-	        	System.out.println("Different eval looked "+(i-1)+" moves ahead with "+sum+" beans on the board. At turn "+ boardState.getTurnNumber());
+	        	//System.out.println("Different eval looked "+(i-1)+" moves ahead with "+sum+" beans on the board. At turn "+ boardState.getTurnNumber());
 	        	return previousBestMoves.currentMove;
 	        } catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -307,7 +308,7 @@ public class StudentPlayerMinimaxImproved extends BohnenspielPlayer {
         }
 
 
-    	System.out.println("Different eval looked "+250+" moves ahead with "+sum+" beans on the board.");
+    	//System.out.println("Different eval looked "+250+" moves ahead with "+sum+" beans on the board.");
         
         
         return previousBestMoves.currentMove;

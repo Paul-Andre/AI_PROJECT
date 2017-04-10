@@ -145,7 +145,7 @@ public class StudentPlayerMinimax extends BohnenspielPlayer {
         
         BohnenspielMove previous_best_move = null;
         
-        for (int i=8; i<150; i++) {
+        for (int i=7; i<150; i++) {
         
         	
 	        //http://stackoverflow.com/questions/1164301/how-do-i-call-some-blocking-method-with-a-timeout-in-java

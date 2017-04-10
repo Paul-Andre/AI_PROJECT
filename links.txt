@@ -1,0 +1,8 @@
+http://madrury.github.io/smoothers/
+http://scikit-learn.org/stable/modules/linear_model.html
+https://people.eecs.berkeley.edu/~russell/classes/cs194/f11/lectures/CS194%20Fall%202011%20Lecture%2004.pdf
+https://www.analyticsvidhya.com/blog/2016/01/complete-tutorial-ridge-lasso-regression-python/
+https://www.cs.ox.ac.uk/people/nando.defreitas/machinelearning/lecture4.pdf
+http://scikit-learn.org/stable/auto_examples/linear_model/plot_polynomial_interpolation.html
+https://www.mathworks.com/matlabcentral/newsreader/view_thread/285603?requestedDomain=www.mathworks.com
+

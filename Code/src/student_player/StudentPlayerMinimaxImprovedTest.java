@@ -26,6 +26,7 @@ public class StudentPlayerMinimaxImprovedTest extends BohnenspielPlayer {
      * This is important, because this is what the code that runs the
      * competition uses to associate you with your agent.
      * The constructor should do nothing else. */
+
     public StudentPlayerMinimaxImprovedTest() { super("Test"); }
     
     private static final int MAX_SCORE = 10000;
@@ -45,16 +46,18 @@ public class StudentPlayerMinimaxImprovedTest extends BohnenspielPlayer {
 	    		return - MAX_SCORE; 
 	    	}
 
-	    	
-			int[][] pits = boardState.getPits();
 
+			int[][] pits = boardState.getPits();
 			int sum = 0;
 			for (int j = 0; j < 6; j++) {
 				sum += pits[player_id][j];
 			}
 			
 	    	
-	    	return playerScore-opponentScore + sum;
+	    	//return playerScore-opponentScore + sum;
+
+
+	    	return playerScore + sum;
     	}
     	else if (winner == player_id) {
     		return MAX_SCORE;
@@ -228,6 +231,7 @@ public class StudentPlayerMinimaxImprovedTest extends BohnenspielPlayer {
     }
     
     
+
     public BohnenspielMove chooseMove(final BohnenspielBoardState boardState)
     {
     	long startTime = System.nanoTime();
@@ -239,15 +243,18 @@ public class StudentPlayerMinimaxImprovedTest extends BohnenspielPlayer {
     	
     	final long timeout = (boardState.getTurnNumber() == 0)? 29500 : 690; 
     	//final long timeout = (boardState.getTurnNumber() == 0)? 29000 : 600; // Play with Youri;
+
     	
         int[][] pits = boardState.getPits();
-        
+      
+        /*
         int sum = 0;
         for (int i=0; i<2; i++) {
         	for (int j=0; j<6; j++) {
         		sum += pits[i][j];
         	}
         }
+        */
         
         MoveChain previousBestMoves = null;
         
@@ -255,6 +262,7 @@ public class StudentPlayerMinimaxImprovedTest extends BohnenspielPlayer {
         
         int baseDepth = (boardState.getTurnNumber() == 0)? 16 : 13;
         for (int depth=baseDepth; depth<250; depth++) {
+
         
         	
 	        //http://stackoverflow.com/questions/1164301/how-do-i-call-some-blocking-method-with-a-timeout-in-java
@@ -262,6 +270,7 @@ public class StudentPlayerMinimaxImprovedTest extends BohnenspielPlayer {
 	        ExecutorService executor = Executors.newSingleThreadExecutor();
 	        
 	        final int final_depth = depth;
+
 	        final MoveChain finalPreviousBestMoves = previousBestMoves; 
 	        Callable<ScoreAndMoveChain> task = new Callable<ScoreAndMoveChain>() {
 	           public ScoreAndMoveChain call() {
@@ -271,6 +280,7 @@ public class StudentPlayerMinimaxImprovedTest extends BohnenspielPlayer {
 	        	   int color = 1;
 	        	   
 	        	   ScoreAndMoveChain result = negamax(boardState, alpha, beta, color, final_depth, finalPreviousBestMoves);
+
 					
 	        	   return result;
 	           }
@@ -280,19 +290,21 @@ public class StudentPlayerMinimaxImprovedTest extends BohnenspielPlayer {
 	        try {
 	        	ScoreAndMoveChain newScoreAndMoves = future.get(timeout*1000000l - (System.nanoTime() - startTime), TimeUnit.NANOSECONDS);
 	        	if (newScoreAndMoves.score == MAX_SCORE) {
-	        		System.out.println("Winning after searching "+depth+" levels! At turn "+ boardState.getTurnNumber());
+
+	        		//System.out.println("Test Winning after searching "+i+" levels! At turn "+ boardState.getTurnNumber());
 	        		return newScoreAndMoves.moveChain.currentMove;
 	        	}
         		if (newScoreAndMoves.score == -MAX_SCORE) {
-	        		System.out.println("Giving up after searching "+depth+" levels. :(");
+	        		//System.out.println("Test Giving up after searching "+i+" levels. :(");
 	        		return newScoreAndMoves.moveChain.currentMove;
         		}
 	        	previousBestMoves = newScoreAndMoves.moveChain;
-	        	System.out.println(" "+depth+ " " +(System.nanoTime() - startTime)/1000000);
+	        	//System.out.println(" "+i+ " " +(System.nanoTime() - startTime));
 	           
 	        } catch (TimeoutException ex) {
 	        	
-	        	System.out.println("Test looked "+(depth-1)+" moves ahead with "+sum+" beans on the board. At turn "+ boardState.getTurnNumber());
+	        	//System.out.println("Test looked "+(i-1)+" moves ahead with "+sum+" beans on the board. At turn "+ boardState.getTurnNumber());
+
 	        	return previousBestMoves.currentMove;
 	        } catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -306,8 +318,9 @@ public class StudentPlayerMinimaxImprovedTest extends BohnenspielPlayer {
         }
 
 
-    	System.out.println("Different eval looked "+250+" moves ahead with "+sum+" beans on the board.");
-        
+
+    	System.out.println("Test looked "+250+" moves ahead with "+sum+" beans on the board.");
+
         
         return previousBestMoves.currentMove;
     }
