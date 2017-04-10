@@ -234,7 +234,11 @@ public class StudentPlayerMinimaxImproved extends BohnenspielPlayer {
     	
     	//System.out.println("Turn " + boardState.getTurnNumber());
     	
-    	final long timeout = (boardState.getTurnNumber() == 0)? 29500 : 675; 
+    	if (boardState.getTurnNumber() == 0) {
+    		return new BohnenspielMove(2);
+    	}
+    	
+    	final long timeout = (boardState.getTurnNumber() == 0)? 29500 : 690; 
     	//final long timeout = (boardState.getTurnNumber() == 0)? 29000 : 600; // Play with Youri;
     	
         int[][] pits = boardState.getPits();
