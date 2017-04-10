@@ -359,7 +359,7 @@ fn compute_score(scores: &mut Vec<PackedConfigurationScore>, config_: &Configura
 
 fn main() {
 
-    let num = 4u8;
+    let num = 10u8;
 
     let mut scores: Vec<PackedConfigurationScore> = vec![ConfigurationScore::NotVisited.pack(); (EVEN_PARTITIONS[num as usize]*15) as usize];
 
