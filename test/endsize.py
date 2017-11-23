@@ -30,4 +30,7 @@ def endgame(b) :
 #print(2**31)
 #print(10**10)
 #print(2**63)
+#endgame(20)
+#print(get(12,20)-get(6,20))
+print(get(10,99))
 #print(2**31)
