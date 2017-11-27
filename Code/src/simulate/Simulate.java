@@ -6,11 +6,29 @@ import student_player.*;
 public class Simulate {
 
 	static BohnenspielPlayer make_A() {
-		return new StudentPlayerMinimaxImproved();
+		StudentPlayer ret = new StudentPlayer();
+		ret.a = 100;
+		ret.b = -100;
+		ret.c = 75;
+		return ret;
 	}
 	
+	/*
 	static BohnenspielPlayer make_B() {
-		return new StudentPlayerMinimaxImprovedTest();
+		StudentPlayerMinimaxImproved ret = new StudentPlayerMinimaxImproved();
+		ret.a = 100;
+		ret.b = -100;
+		ret.c = 20;
+		return ret;
+	}
+	*/
+	
+	static BohnenspielPlayer make_B() {
+		StudentPlayer ret = new StudentPlayer();
+		ret.a = 100;
+		ret.b = -100;
+		ret.c = 100;
+		return ret;
 	}
 	
 	public static void main(String[] args) {

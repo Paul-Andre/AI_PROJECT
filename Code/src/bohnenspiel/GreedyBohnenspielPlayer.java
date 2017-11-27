@@ -20,7 +20,7 @@ public class GreedyBohnenspielPlayer extends BohnenspielPlayer {
     {
 
         // Use code stored in ``mytools`` package.
-        MyTools.getSomething();
+        //MyTools.getSomething();
 
         // Get the legal moves for the current board state.
         ArrayList<BohnenspielMove> moves = board_state.getLegalMoves();

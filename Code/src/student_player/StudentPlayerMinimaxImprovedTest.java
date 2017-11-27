@@ -52,12 +52,8 @@ public class StudentPlayerMinimaxImprovedTest extends BohnenspielPlayer {
 			for (int j = 0; j < 6; j++) {
 				sum += pits[player_id][j];
 			}
-			
-	    	
-	    	//return playerScore-opponentScore + sum;
 
-
-	    	return playerScore + sum;
+	    	return playerScore - opponentScore + sum;
     	}
     	else if (winner == player_id) {
     		return MAX_SCORE;
@@ -238,7 +234,7 @@ public class StudentPlayerMinimaxImprovedTest extends BohnenspielPlayer {
     	
     	//System.out.println("Turn " + boardState.getTurnNumber());
     	if (boardState.getTurnNumber() == 0) {
-    		return new BohnenspielMove(2);
+    		return new BohnenspielMove(2, player_id);
     	}
     	
     	final long timeout = (boardState.getTurnNumber() == 0)? 29500 : 690; 
@@ -260,7 +256,7 @@ public class StudentPlayerMinimaxImprovedTest extends BohnenspielPlayer {
         
         
         
-        int baseDepth = (boardState.getTurnNumber() == 0)? 16 : 13;
+        int baseDepth = (boardState.getTurnNumber() == 0)? 16 : 12;
         for (int depth=baseDepth; depth<250; depth++) {
 
         
@@ -319,7 +315,7 @@ public class StudentPlayerMinimaxImprovedTest extends BohnenspielPlayer {
 
 
 
-    	System.out.println("Test looked "+250+" moves ahead with "+sum+" beans on the board.");
+    	//System.out.println("Test looked "+250+" moves ahead with "+sum+" beans on the board.");
 
         
         return previousBestMoves.currentMove;

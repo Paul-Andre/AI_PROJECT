@@ -48,6 +48,7 @@ implements BoardPanel.BoardPanelListener  {
     	"student_player.StudentPlayerMinimax3",
     	"student_player.StudentPlayerMinimaxImproved",
     	"student_player.StudentPlayerMinimaxImprovedTest",
+    	"student_player.StudentPlayerWithoutLinkedList",
     	//"student_player.StudentPlayerMinimaxImprovedTest",
     	"student_player.StudentPlayerMCTS"};
     private static final int BOARD_SIZE = 800;
