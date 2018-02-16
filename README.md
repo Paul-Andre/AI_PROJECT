@@ -1,7 +1,7 @@
 # Bohnenspeil-Agent
 Bohnenspeil Game Playing Agent
 
-This contains the AI agent I wrote for my final project for the McGill artificial intelligence course (COMP 424 Winter 2017).
+This contains the AI agent I wrote for my final project for the McGill artificial intelligence course (COMP 424 Winter 2017). PLEASE DO NOT COPY
 
 It won first place in the class tournament.
 
